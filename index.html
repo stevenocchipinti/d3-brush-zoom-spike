@@ -7,10 +7,12 @@
   clip-path: url(#clip);
 }
 
-.zoom {
-  cursor: move;
-  fill: none;
-  pointer-events: all;
+.axis--y .tick line {
+  stroke: #eee;
+}
+
+.axis .domain {
+  display: none;
 }
 
 </style>
@@ -28,7 +30,7 @@ var x = d3.scaleTime().range([0, width]),
     y = d3.scaleLinear().range([height, 0]);
 
 var xAxis = d3.axisBottom(x),
-    yAxis = d3.axisLeft(y);
+    yAxis = d3.axisLeft(y).tickSize(-width).tickFormat("");
 
 var zoom = d3.zoom()
     .scaleExtent([1, Infinity])
@@ -68,11 +70,6 @@ d3.csv("sp500.csv", type, function(error, data) {
   y.domain([0, d3.max(data, function(d) { return d.price; })]);
   original_x.domain(x.domain());
 
-  focus.append("path")
-      .datum(data)
-      .attr("class", "area")
-      .attr("d", area);
-
   focus.append("g")
       .attr("class", "axis axis--x")
       .attr("transform", "translate(0," + height + ")")
@@ -81,6 +78,11 @@ d3.csv("sp500.csv", type, function(error, data) {
   focus.append("g")
       .attr("class", "axis axis--y")
       .call(yAxis);
+
+  focus.append("path")
+      .datum(data)
+      .attr("class", "area")
+      .attr("d", area);
 });
 
 
