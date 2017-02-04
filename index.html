@@ -23,8 +23,6 @@ var svg = d3.select("svg"),
     width = +svg.attr("width") - margin.left - margin.right,
     height = +svg.attr("height") - margin.top - margin.bottom;
 
-var parseDate = d3.timeParse("%b %Y");
-
 var x = d3.scaleTime().range([0, width]),
     x2 = d3.scaleTime().range([0, width]),
     y = d3.scaleLinear().range([height, 0]);
@@ -52,7 +50,16 @@ svg.append("defs").append("clipPath")
 
 var focus = svg.append("g")
     .attr("class", "focus")
-    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+    .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
+    .call(zoom);
+
+function zoomed() {
+  var t = d3.event.transform;
+  x.domain(t.rescaleX(x2).domain());
+  focus.select(".area").attr("d", area);
+  focus.select(".axis--x").call(xAxis);
+}
+
 
 d3.csv("sp500.csv", type, function(error, data) {
   if (error) throw error;
@@ -74,23 +81,11 @@ d3.csv("sp500.csv", type, function(error, data) {
   focus.append("g")
       .attr("class", "axis axis--y")
       .call(yAxis);
-
-  svg.append("rect")
-      .attr("class", "zoom")
-      .attr("width", width)
-      .attr("height", height)
-      .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
-      .call(zoom);
 });
 
-function zoomed() {
-  var t = d3.event.transform;
-  x.domain(t.rescaleX(x2).domain());
-  focus.select(".area").attr("d", area);
-  focus.select(".axis--x").call(xAxis);
-}
 
 function type(d) {
+  var parseDate = d3.timeParse("%b %Y");
   d.date = parseDate(d.date);
   d.price = +d.price;
   return d;
