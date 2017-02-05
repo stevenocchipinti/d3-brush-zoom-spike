@@ -1,9 +1,5 @@
-// TODO: Will probably need to re-introduce the `.zoom` element (b937032)
-// because dragging the area will successfully translate the chart, but above
-// the area does not work
-
 var svg = d3.select("svg"),
-    margin = {top: 20, right: 20, bottom: 30, left: 40},
+    margin = {top: 20, right: 20, bottom: 20, left: 20},
     width = +svg.attr("width") - margin.left - margin.right,
     height = +svg.attr("height") - margin.top - margin.bottom;
 
@@ -20,11 +16,9 @@ var zoom = d3.zoom()
     .extent([[0, 0], [width, height]])
     .on("zoom", zoomed);
 
-var area = d3.area()
-    .curve(d3.curveMonotoneX)
+var line = d3.line()
     .x(function(d) { return x(d.date); })
-    .y0(height)
-    .y1(function(d) { return y(d.price); });
+    .y(function(d) { return y(d.price); });
 
 svg.append("defs").append("clipPath")
     .attr("id", "clip")
@@ -35,12 +29,10 @@ svg.append("defs").append("clipPath")
 var focus = svg.append("g")
     .attr("class", "focus")
     .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
-    .call(zoom);
 
 function zoomed() {
-  var t = d3.event.transform;
-  x.domain(t.rescaleX(original_x).domain());
-  focus.select(".area").attr("d", area);
+  x.domain(d3.event.transform.rescaleX(original_x).domain());
+  focus.select(".line").attr("d", line);
   focus.select(".axis--x").call(xAxis);
 }
 
@@ -66,8 +58,14 @@ d3.csv("sp500.csv", type, function(error, data) {
 
   focus.append("path")
       .datum(data)
-      .attr("class", "area")
-      .attr("d", area);
+      .attr("class", "line")
+      .attr("d", line);
+
+  focus.append("rect")
+      .attr("class", "zoom")
+      .attr("width", width)
+      .attr("height", height)
+      .call(zoom)
 });
 
 function type(d) {

@@ -4,17 +4,24 @@
     <meta charset="utf-8">
     <title></title>
     <style>
-      .area {
-        fill: steelblue;
+      .line {
+        fill: none;
+        stroke: steelblue;
         clip-path: url(#clip);
       }
 
-      .axis--y .tick line {
+      .tick line {
         stroke: #eee;
       }
 
       .axis .domain {
         display: none;
+      }
+
+      .zoom {
+        cursor: move;
+        fill: none;
+        pointer-events: all;
       }
     </style>
   </head>
